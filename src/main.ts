@@ -1,13 +1,13 @@
 import Phaser from "phaser";
-import LoadingScene from "./scenes/LoadingScene";
-import DiggingGameScene from "./scenes/view/DiggingGameScene";
+import DiggingGameScene from "./scenes/DiggingGameScene";
+// import { loadLoginScreen } from "./scenes/login-screen/login";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 720,
   height: 1280,
   backgroundColor: "#263238",
-  scene: [LoadingScene, DiggingGameScene],
+  scene: [DiggingGameScene],
   parent: "game",
   scale: {
     mode: Phaser.Scale.FIT,
@@ -18,3 +18,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 new Phaser.Game(config);
+
+// loadLoginScreen(() => {
+//   new Phaser.Game(config);
+// });
