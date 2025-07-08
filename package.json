@@ -17,6 +17,7 @@
     "vite-plugin-compression": "^0.5.1"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.11"
+    "@tailwindcss/vite": "^4.1.11",
+    "phaser": "^3.90.0"
   }
 }
