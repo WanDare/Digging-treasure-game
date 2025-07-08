@@ -111,9 +111,7 @@ export default class DiggingGameController {
     this.scene.sound.removeAll();
     this.scene.scene.stop();
 
-    // Show login again
     loadLoginScreen(() => {
-      // Reload the page to create a new Phaser.Game instance
       window.location.reload();
     });
   }

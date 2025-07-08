@@ -1,9 +1,8 @@
 import { defineConfig } from "vite";
 import viteCompression from "vite-plugin-compression";
-import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig(({ command }) => ({
-  base: command === "build" ? "/digging-treasure-game/" : "/",
+export default defineConfig({
+  base: "./",
   server: {
     port: 3000,
   },
@@ -18,5 +17,5 @@ export default defineConfig(({ command }) => ({
       },
     },
   },
-  plugins: [viteCompression(), tailwindcss()],
-}));
+  plugins: [viteCompression()],
+});
