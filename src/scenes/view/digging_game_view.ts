@@ -7,6 +7,13 @@ import {
   handleDiggingLogic,
 } from "../components";
 
+export type UIHandlers = {
+  refresh: () => void;
+  exit: () => void;
+  fullscreen: () => void;
+  toggleSound: (icon: Phaser.GameObjects.Image) => void;
+};
+
 export default class DiggingGameView {
   private scene: Phaser.Scene;
   private diggingSpots: Phaser.GameObjects.Image[] = [];
@@ -21,7 +28,7 @@ export default class DiggingGameView {
     preloadAssets(this.scene);
   }
 
-  createLayout(handlers: Record<string, () => void>) {
+  createLayout(handlers: UIHandlers) {
     const width = 720;
     const height = 1280;
     const centerX = width / 2;

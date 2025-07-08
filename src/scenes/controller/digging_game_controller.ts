@@ -1,5 +1,7 @@
 import DiggingGameModel from "../model/digging_game_model";
 import DiggingGameView from "../view/digging_game_view";
+import type { UIHandlers } from "../components/createTopUI";
+import { loadLoginScreen } from "../login-screen/login";
 
 export default class DiggingGameController {
   private model: DiggingGameModel;
@@ -15,41 +17,104 @@ export default class DiggingGameController {
   }
 
   create(): void {
-    this.view.createLayout({
+    // 🧼 Stop any lingering BGM from last session
+    const oldBgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
+    if (oldBgm) {
+      oldBgm.stop();
+      oldBgm.destroy();
+      this.scene.sound.remove(oldBgm);
+      delete (this.scene as any).bgm;
+    }
+
+    // 🔊 Create fresh background music
+    const bgm = this.scene.sound.add("BeachTheme", { loop: true, volume: 0.5 });
+    if (!this.model.soundMuted) {
+      bgm.play();
+    }
+    (this.scene as any).bgm = bgm;
+
+    const handlers: UIHandlers = {
       refresh: () => this.onRefresh(),
-      soundoff: () => this.onToggleSound(),
+      toggleSound: (btn) => this.onToggleSound(btn),
       fullscreen: () => this.onToggleFullScreen(),
       exit: () => this.onExit(),
-    });
+    };
+
+    this.view.createLayout(handlers);
   }
 
   private onRefresh(): void {
     console.log("[Controller] Refreshing game...");
-    this.scene.scene.restart();
+
+    // 🟦 Add fade-out transition
+    const fade = this.scene.add
+      .rectangle(0, 0, 720, 1280, 0x000000)
+      .setOrigin(0)
+      .setAlpha(0)
+      .setDepth(1000);
+
+    this.scene.tweens.add({
+      targets: fade,
+      alpha: 1,
+      duration: 600,
+      ease: "Power2",
+      onComplete: () => {
+        const bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
+        if (bgm) {
+          bgm.stop();
+          bgm.destroy();
+          this.scene.sound.remove(bgm);
+          delete (this.scene as any).bgm;
+        }
+
+        this.scene.sound.stopAll();
+        this.scene.sound.removeAll();
+
+        this.scene.scene.restart();
+      },
+    });
   }
 
-  private onToggleSound(): void {
-    // Toggle sound state in model
+  private onToggleSound(btn?: Phaser.GameObjects.Image): void {
     const muted = this.model.toggleSound();
-    console.log(`[Controller] Sound is now ${muted ? "muted" : "unmuted"}`);
+    this.scene.sound.mute = muted;
 
-    // TODO: integrate actual sound manager logic
-    // this.scene.sound.mute = muted;
+    const bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
+    if (bgm) {
+      if (muted) bgm.pause();
+      else bgm.resume();
+    }
+
+    if (btn) {
+      btn.setTexture(muted ? "SoundOff" : "SoundOn");
+    }
   }
 
   private onToggleFullScreen(): void {
     if (!this.scene.scale.isFullscreen) {
-      console.log("[Controller] Entering fullscreen");
       this.scene.scale.startFullscreen();
     } else {
-      console.log("[Controller] Exiting fullscreen");
       this.scene.scale.stopFullscreen();
     }
   }
 
   private onExit(): void {
-    console.log("[Controller] Exiting game");
-    // Optionally display confirmation dialog
+    const bgm = (this.scene as any).bgm;
+    if (bgm) {
+      bgm.stop();
+      bgm.destroy();
+      this.scene.sound.remove(bgm);
+      delete (this.scene as any).bgm;
+    }
+
+    this.scene.sound.stopAll();
+    this.scene.sound.removeAll();
     this.scene.scene.stop();
+
+    // Show login again
+    loadLoginScreen(() => {
+      // Reload the page to create a new Phaser.Game instance
+      window.location.reload();
+    });
   }
 }

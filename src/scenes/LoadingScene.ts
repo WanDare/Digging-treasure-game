@@ -53,12 +53,12 @@ export default class LoadingScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     for (let i = 0; i < 30; i++) {
-      this.load.image(`dummy${i}`, "assets/images/ticket_prize.png");
+      this.load.image(`dummy${i}`, "assets/images/treasure_chest.png");
     }
 
     this.load.on("progress", (value: number) => {
       this.progressBar.clear();
-      this.progressBar.fillStyle(0x03792a, 1);
+      this.progressBar.fillStyle(0x85c1e9, 1);
       this.progressBar.fillRect(
         width / 2 - 160,
         height / 2 - 15,

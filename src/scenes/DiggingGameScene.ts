@@ -5,7 +5,7 @@ export default class DiggingGameScene extends Phaser.Scene {
   private controller!: DiggingGameController;
 
   constructor() {
-    super("DiggingGame");
+    super("DiggingGameScene");
   }
 
   preload() {

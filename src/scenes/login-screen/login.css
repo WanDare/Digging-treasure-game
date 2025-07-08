@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
 #login-screen {
   position: fixed;
   top: 50%;
@@ -6,7 +8,10 @@
   z-index: 999;
   width: 720px;
   height: 1280px;
-  background: #0e0e0e;
+  background: var(
+    --System-Color-Background-Dark,
+    linear-gradient(180deg, #1a2228 0%, #0e1316 100%)
+  );
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,14 +22,11 @@
   position: absolute;
   width: 720px;
   height: 720px;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-30%) rotate(17deg);
+  top: -50px;
   transform-origin: top center;
-  background-image: url("/assets/images/game_slide_vertical.png");
+  background-image: url("/assets/images/game_banner.png");
   background-size: cover;
   background-position: center;
-  filter: brightness(0.25);
   z-index: -1;
 }
 
@@ -42,33 +44,51 @@
 }
 
 .login-icon {
-  width: 72px;
-  height: 72px;
-  margin-bottom: 32px;
-}
-
-.login-container h1 {
-  font-size: 24px;
-  font-weight: bold;
+  width: 80px;
+  height: 80px;
   margin-bottom: 12px;
 }
 
+.login-container h1 {
+  color: var(--System-Color-White, #fff);
+  text-align: center;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 145%;
+  margin-bottom: 5px;
+}
+
 .login-container p {
-  color: #ccc;
+  color: var(--System-Color-White, #fff);
+  text-align: center;
   font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 145%;
   margin-bottom: 32px;
+  margin-top: 0;
 }
 
 .login-container input {
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
   padding: 14px 16px;
   font-size: 16px;
+  border: 1.6px solid transparent;
   border-radius: 12px;
-  border: none;
-  background: #2d2d2d;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(30px);
   color: white;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
+  box-sizing: border-box;
+  display: block;
+  outline: none;
+  caret-color: #ff8900;
+}
+
+.login-container input:focus {
+  border-color: #f9ab00;
 }
 
 .login-container input::placeholder {
@@ -77,7 +97,7 @@
 
 .login-container button {
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
   padding: 12px;
   font-size: 16px;
   font-style: normal;
@@ -88,6 +108,8 @@
   font-weight: 600;
   border: none;
   transition: 0.3s;
+  box-sizing: border-box;
+  display: block;
 }
 
 .login-container button.disabled {

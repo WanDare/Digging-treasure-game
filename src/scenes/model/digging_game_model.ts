@@ -1,13 +1,13 @@
 export default class DiggingGameModel {
-  private muted: boolean = false;
+  public soundMuted: boolean = false;
 
   toggleSound(): boolean {
-    this.muted = !this.muted;
-    return this.muted;
+    this.soundMuted = !this.soundMuted;
+    return this.soundMuted;
   }
 
   isMuted(): boolean {
-    return this.muted;
+    return this.soundMuted;
   }
 
   // Future: track energy, treasure states, etc.

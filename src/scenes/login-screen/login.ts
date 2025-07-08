@@ -29,7 +29,7 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
       loginBtn?.addEventListener("click", () => {
         if (!loginBtn.disabled && loginScreen) {
           loginScreen.remove();
-          onLoginSuccess(); // ✅ start game here
+          onLoginSuccess();
         }
       });
     });
