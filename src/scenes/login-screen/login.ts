@@ -1,5 +1,5 @@
 export function loadLoginScreen(onLoginSuccess: () => void) {
-  fetch("/src/scenes/login-screen/login.html")
+  fetch("/login/login.html")
     .then((res) => res.text())
     .then((html) => {
       const wrapper = document.createElement("div");
@@ -8,7 +8,7 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
 
       const style = document.createElement("link");
       style.rel = "stylesheet";
-      style.href = "/src/scenes/login-screen/login.css";
+      style.href = "/login/login.css";
       document.head.appendChild(style);
 
       const phoneInput = document.getElementById(
