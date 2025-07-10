@@ -51,17 +51,30 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
     if (scene.textures.exists("UserPhoto")) {
       scene.textures.remove("UserPhoto");
     }
-    scene.load.image("UserPhoto", photoUrl);
-    scene.load.once("complete", () => {
-      const profileImg = scene.add
-        .image(-170, 0, "UserPhoto")
-        .setDisplaySize(42, 42)
-        .setOrigin(0.5)
-        .setDepth(1)
-        .setCrop(0, 0, 42, 42);
 
-      container.add(profileImg);
+    scene.load.image("UserPhoto", photoUrl);
+
+    // 🔁 Load error fallback to default profile
+    scene.load.once("loaderror", () => {
+      console.warn("⚠️ Failed to load UserPhoto, using default.");
+      const fallback = scene.add
+        .image(-170, 0, "Profile")
+        .setDisplaySize(42, 42);
+      container.add(fallback);
     });
+
+    scene.load.once("complete", () => {
+      if (scene.textures.exists("UserPhoto")) {
+        const profileImg = scene.add
+          .image(-170, 0, "UserPhoto")
+          .setDisplaySize(42, 42)
+          .setOrigin(0.5)
+          .setDepth(1)
+          .setCrop(0, 0, 42, 42);
+        container.add(profileImg);
+      }
+    });
+
     scene.load.start();
   } else {
     container.add(scene.add.image(-170, 0, "Profile").setScale(1));

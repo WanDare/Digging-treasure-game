@@ -76,7 +76,7 @@ export default class DiggingGameView {
     const centerX = 720 / 2;
     const height = 1280;
 
-    if ((user.energy ?? 0) < 2) {
+    if ((user.energy ?? 0) < 1) {
       this.showToast("⚡ Not enough energy to start");
       return;
     }
@@ -86,7 +86,7 @@ export default class DiggingGameView {
     const reward = await this.deductEnergy(user);
 
     if (reward) {
-      user.energy = Math.max((user.energy ?? 0) - 2, 0);
+      user.energy = Math.max((user.energy ?? 0) - 1, 0);
       localStorage.setItem("user", JSON.stringify(user));
       updateEnergyDisplay(user.energy);
 
@@ -113,7 +113,7 @@ export default class DiggingGameView {
           phone: user.phone,
           deviceName: navigator.userAgent,
           gameName: "Digging Treasure",
-          energy: 2,
+          energy: 1,
         }),
       });
 

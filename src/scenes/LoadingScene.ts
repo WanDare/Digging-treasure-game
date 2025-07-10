@@ -17,6 +17,7 @@ export default class LoadingScene extends Phaser.Scene {
   preload() {
     const { width, height } = this.cameras.main;
 
+    this.preloadFonts();
     this.progressBox = this.add.graphics();
     this.progressBox.fillStyle(0x222222, 0.8);
     this.progressBox.fillRect(width / 2 - 170, height / 2 - 30, 340, 60);
@@ -29,7 +30,7 @@ export default class LoadingScene extends Phaser.Scene {
         y: height / 2 - 50,
         text: "Loading...",
         style: {
-          font: "bold 28px Arial",
+          font: "bold 28px Arial", 
           color: "#ffffff",
         },
       })
@@ -70,6 +71,34 @@ export default class LoadingScene extends Phaser.Scene {
       this.minTimePassed = true;
       this.checkReady();
     });
+  }
+
+  private preloadFonts() {
+    const font1 = new FontFace(
+      "AutumnInSeptember",
+      "url(/assets/fonts/AutumnInSeptember.ttf)"
+    );
+    const font2 = new FontFace("GROBOLD", "url(/assets/fonts/GROBOLD.ttf)");
+
+    font1
+      .load()
+      .then((loaded) => {
+        (document as any).fonts.add(loaded);
+        console.log("✅ AutumnInSeptember font loaded.");
+      })
+      .catch((err) => {
+        console.warn("❌ AutumnInSeptember font failed:", err);
+      });
+
+    font2
+      .load()
+      .then((loaded) => {
+        (document as any).fonts.add(loaded);
+        console.log("✅ GROBOLD font loaded.");
+      })
+      .catch((err) => {
+        console.warn("❌ GROBOLD font failed:", err);
+      });
   }
 
   private checkReady() {

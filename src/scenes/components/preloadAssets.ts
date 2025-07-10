@@ -8,7 +8,7 @@ export function preloadAssets(scene: Phaser.Scene) {
     ["CrossMark", "assets/images/cross_mark.png"],
     ["LineSplit", "assets/images/line_split.png"],
     ["Digging", "assets/images/digging.png"],
-    ["Profile", "assets/images/user_profile.png"],
+    ["Profile", "assets/images/default_profile.png"],
     ["PopupWinner", "assets/images/popup_winner.png"],
     // Buttons
     ["Start", "assets/images/start_button.png"],
