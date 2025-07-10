@@ -43,42 +43,49 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
 
   const fullName = user?.name || "Guest";
   const energy = user?.energy ?? 0;
-  const photoUrl = user?.photo || "";
+  // const photoUrl = user?.photo || "";
 
   const container = scene.add.container(500, 58);
 
-  if (photoUrl) {
-    if (scene.textures.exists("UserPhoto")) {
-      scene.textures.remove("UserPhoto");
-    }
+  // Always show static profile image
+  const profile = scene.add
+    .image(-170, 0, "Profile")
+    .setDisplaySize(42, 42)
+    .setOrigin(0.5);
+  container.add(profile);
 
-    scene.load.image("UserPhoto", photoUrl);
+  // if (photoUrl) {
+  //   if (scene.textures.exists("UserPhoto")) {
+  //     scene.textures.remove("UserPhoto");
+  //   }
 
-    // 🔁 Load error fallback to default profile
-    scene.load.once("loaderror", () => {
-      console.warn("⚠️ Failed to load UserPhoto, using default.");
-      const fallback = scene.add
-        .image(-170, 0, "Profile")
-        .setDisplaySize(42, 42);
-      container.add(fallback);
-    });
+  //   scene.load.image("UserPhoto", photoUrl);
 
-    scene.load.once("complete", () => {
-      if (scene.textures.exists("UserPhoto")) {
-        const profileImg = scene.add
-          .image(-170, 0, "UserPhoto")
-          .setDisplaySize(42, 42)
-          .setOrigin(0.5)
-          .setDepth(1)
-          .setCrop(0, 0, 42, 42);
-        container.add(profileImg);
-      }
-    });
+  //   // 🔁 Load error fallback to default profile
+  //   scene.load.once("loaderror", () => {
+  //     console.warn("⚠️ Failed to load UserPhoto, using default.");
+  //     const fallback = scene.add
+  //       .image(-170, 0, "Profile")
+  //       .setDisplaySize(42, 42);
+  //     container.add(fallback);
+  //   });
 
-    scene.load.start();
-  } else {
-    container.add(scene.add.image(-170, 0, "Profile").setScale(1));
-  }
+  //   scene.load.once("complete", () => {
+  //     if (scene.textures.exists("UserPhoto")) {
+  //       const profileImg = scene.add
+  //         .image(-170, 0, "UserPhoto")
+  //         .setDisplaySize(42, 42)
+  //         .setOrigin(0.5)
+  //         .setDepth(1)
+  //         .setCrop(0, 0, 42, 42);
+  //       container.add(profileImg);
+  //     }
+  //   });
+
+  //   scene.load.start();
+  // } else {
+  //   container.add(scene.add.image(-170, 0, "Profile").setScale(1));
+  // }
 
   // 👤 Username with ellipsis
   const maxWidth = 130;

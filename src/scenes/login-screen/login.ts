@@ -25,7 +25,6 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
       errorMsg.style.display = "none";
       errorMsg.style.marginTop = "-20px";
       errorMsg.style.marginBottom = "20px";
-      errorMsg.style.display = "flex";
       errorMsg.style.alignItems = "center";
       errorMsg.style.color = "#FFC107";
       errorMsg.style.fontSize = "14px";
