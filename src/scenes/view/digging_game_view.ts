@@ -1,3 +1,4 @@
+// DiggingGameView.ts
 import Phaser from "phaser";
 import {
   preloadAssets,
@@ -5,7 +6,9 @@ import {
   createDiggingSpots,
   createStartButton,
   handleDiggingLogic,
+  updateEnergyDisplay,
 } from "../components";
+import { API_BASE_URL } from "../utils/constants";
 
 export type UIHandlers = {
   refresh: () => void;
@@ -15,6 +18,7 @@ export type UIHandlers = {
 };
 
 export default class DiggingGameView {
+  [x: string]: any;
   private scene: Phaser.Scene;
   private diggingSpots: Phaser.GameObjects.Image[] = [];
   private digUsed = false;
@@ -48,9 +52,54 @@ export default class DiggingGameView {
       this.scene,
       centerX,
       height - 80,
-      () => {
-        this.startButton?.destroy();
-        this.transitionToCrossMarks();
+      async () => {
+        try {
+          const userRaw = localStorage.getItem("user");
+          if (!userRaw) return;
+
+          const user = JSON.parse(userRaw);
+
+          // ⚡️ Immediate UI feedback
+          this.startButton?.destroy();
+
+          // Optional: Add a loading spinner or animation here
+
+          const res = await fetch(`${API_BASE_URL}/reward/game-play`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              phone: user.phone,
+              deviceName: navigator.userAgent,
+              gameName: "Digging Treasure",
+              energy: 2,
+            }),
+          });
+
+          if (res.ok) {
+            const result = await res.json();
+            const reward = result.data;
+
+            user.energy = Math.max((user.energy ?? 0) - 2, 0);
+            localStorage.setItem("user", JSON.stringify(user));
+            updateEnergyDisplay(user.energy);
+
+            this.transitionToCrossMarks(reward);
+          } else {
+            console.warn("❌ Failed to deduct energy:", await res.text());
+
+            // Optional: re-show the start button if failed
+            this.startButton = createStartButton(
+              this.scene,
+              centerX,
+              height - 80,
+              this.handleStartButtonClick.bind(this)
+            );
+          }
+        } catch (err) {
+          console.error("Error sending energy request:", err);
+        }
       }
     );
 
@@ -69,7 +118,10 @@ export default class DiggingGameView {
     }
   }
 
-  private transitionToCrossMarks() {
+  private transitionToCrossMarks(reward: {
+    rewardName: string;
+    photo: string;
+  }) {
     this.diggingSpots.forEach((spot) => {
       this.scene.tweens.add({
         targets: spot,
@@ -87,6 +139,7 @@ export default class DiggingGameView {
               handleDiggingLogic(
                 this.scene,
                 spot,
+                reward,
                 () => this.disableOtherCrossMarks(spot),
                 () => this.scene.scene.restart()
               );

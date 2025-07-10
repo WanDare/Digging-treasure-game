@@ -4,11 +4,21 @@ export function createStartButton(
   scene: Phaser.Scene,
   x: number,
   y: number,
-  onStart: () => void
+  onStart: () => void | Promise<void>
 ): Phaser.GameObjects.Image {
-  return scene.add
+  const button = scene.add
     .image(x, y, "Start")
     .setScale(0.9)
-    .setInteractive({ useHandCursor: true })
-    .on("pointerdown", onStart);
+    .setInteractive({ useHandCursor: true });
+
+  button.on("pointerdown", () => {
+    // Disable temporarily to prevent spam
+    button.disableInteractive();
+
+    Promise.resolve(onStart()).finally(() => {
+      button.setInteractive();
+    });
+  });
+
+  return button;
 }
