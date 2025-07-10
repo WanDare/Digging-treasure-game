@@ -1,4 +1,3 @@
-// DiggingGameView.ts
 import Phaser from "phaser";
 import {
   preloadAssets,
@@ -18,7 +17,6 @@ export type UIHandlers = {
 };
 
 export default class DiggingGameView {
-  [x: string]: any;
   private scene: Phaser.Scene;
   private diggingSpots: Phaser.GameObjects.Image[] = [];
   private digUsed = false;
@@ -52,55 +50,7 @@ export default class DiggingGameView {
       this.scene,
       centerX,
       height - 80,
-      async () => {
-        try {
-          const userRaw = localStorage.getItem("user");
-          if (!userRaw) return;
-
-          const user = JSON.parse(userRaw);
-
-          // ⚡️ Immediate UI feedback
-          this.startButton?.destroy();
-
-          // Optional: Add a loading spinner or animation here
-
-          const res = await fetch(`${API_BASE_URL}/reward/game-play`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              phone: user.phone,
-              deviceName: navigator.userAgent,
-              gameName: "Digging Treasure",
-              energy: 2,
-            }),
-          });
-
-          if (res.ok) {
-            const result = await res.json();
-            const reward = result.data;
-
-            user.energy = Math.max((user.energy ?? 0) - 2, 0);
-            localStorage.setItem("user", JSON.stringify(user));
-            updateEnergyDisplay(user.energy);
-
-            this.transitionToCrossMarks(reward);
-          } else {
-            console.warn("❌ Failed to deduct energy:", await res.text());
-
-            // Optional: re-show the start button if failed
-            this.startButton = createStartButton(
-              this.scene,
-              centerX,
-              height - 80,
-              this.handleStartButtonClick.bind(this)
-            );
-          }
-        } catch (err) {
-          console.error("Error sending energy request:", err);
-        }
-      }
+      this.handleStartButtonClick.bind(this)
     );
 
     if (!this.scene.anims.exists("shovel_dig")) {
@@ -116,6 +66,91 @@ export default class DiggingGameView {
         repeat: 0,
       });
     }
+  }
+
+  private async handleStartButtonClick() {
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) return;
+
+    const user = JSON.parse(userRaw);
+    const centerX = 720 / 2;
+    const height = 1280;
+
+    if ((user.energy ?? 0) < 2) {
+      this.showToast("⚡ Not enough energy to start");
+      return;
+    }
+
+    this.startButton?.destroy();
+
+    const reward = await this.deductEnergy(user);
+
+    if (reward) {
+      user.energy = Math.max((user.energy ?? 0) - 2, 0);
+      localStorage.setItem("user", JSON.stringify(user));
+      updateEnergyDisplay(user.energy);
+
+      this.transitionToCrossMarks(reward);
+    } else {
+      this.showToast("❌ Failed to start. Please try again.");
+      this.startButton = createStartButton(
+        this.scene,
+        centerX,
+        height - 80,
+        this.handleStartButtonClick.bind(this)
+      );
+    }
+  }
+
+  private async deductEnergy(user: any): Promise<any | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/reward/game-play`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: user.phone,
+          deviceName: navigator.userAgent,
+          gameName: "Digging Treasure",
+          energy: 2,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        return json.data;
+      } else {
+        console.warn("❌ Backend error:", await res.text());
+        return null;
+      }
+    } catch (error) {
+      console.error("❌ Network or parsing error:", error);
+      return null;
+    }
+  }
+
+  private showToast(message: string) {
+    const toast = this.scene.add
+      .text(360, 640, message, {
+        fontSize: "24px",
+        fontFamily: "Arial",
+        color: "#fff",
+        backgroundColor: "#000000aa",
+        padding: { left: 16, right: 16, top: 8, bottom: 8 },
+      })
+      .setOrigin(0.5)
+      .setDepth(100)
+      .setAlpha(0);
+
+    this.scene.tweens.add({
+      targets: toast,
+      alpha: 1,
+      duration: 300,
+      yoyo: true,
+      hold: 1500,
+      onComplete: () => toast.destroy(),
+    });
   }
 
   private transitionToCrossMarks(reward: {

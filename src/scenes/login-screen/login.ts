@@ -21,20 +21,22 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
       ) as HTMLButtonElement;
       const loginScreen = document.getElementById("login-screen");
 
-      // Create styled warning message
       const errorMsg = document.createElement("div");
       errorMsg.style.display = "none";
       errorMsg.style.marginTop = "-20px";
       errorMsg.style.marginBottom = "20px";
       errorMsg.style.display = "flex";
       errorMsg.style.alignItems = "center";
-      errorMsg.style.color = "#FFC107"; // Amber
+      errorMsg.style.color = "#FFC107";
       errorMsg.style.fontSize = "14px";
       errorMsg.style.fontWeight = "500";
+      errorMsg.style.textAlign = "left";
+      errorMsg.style.width = "63%";
       errorMsg.innerHTML = `
         <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
         Phone number not registered. Please try again.
       `;
+
       phoneInput.parentElement?.insertBefore(errorMsg, loginBtn);
 
       phoneInput?.focus();
@@ -45,7 +47,6 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
         loginBtn.classList.toggle("enabled", hasValue);
         loginBtn.classList.toggle("disabled", !hasValue);
 
-        // Hide warning when user types
         errorMsg.style.display = "none";
       });
 

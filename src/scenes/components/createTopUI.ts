@@ -33,7 +33,6 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
     }
   });
 
-  // 🧠 Get user info safely
   const userRaw = localStorage.getItem("user");
   let user: any = null;
   try {
@@ -48,7 +47,6 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
 
   const container = scene.add.container(500, 58);
 
-  // 🖼️ Load user photo from URL
   if (photoUrl) {
     if (scene.textures.exists("UserPhoto")) {
       scene.textures.remove("UserPhoto");
