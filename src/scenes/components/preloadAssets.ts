@@ -36,7 +36,9 @@ export function preloadAssets(scene: Phaser.Scene) {
     scene.load.image(key, path);
   });
 
-  scene.load.audio("BeachTheme", "assets/audios/jungle_theme_sound.mp3");
+  scene.load.audio("BeachTheme", "assets/audios/summer_theme.mp3");
+
+  scene.load.audio("Achievement", "assets/audios/achievement.mp3");
 
   scene.load.spritesheet("shovelSheet", "assets/motions/shovel_frame1.png", {
     frameWidth: 100,

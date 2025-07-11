@@ -17,21 +17,16 @@ export default class DiggingGameController {
   }
 
   create(): void {
-    // 🧼 Stop any lingering BGM from last session
-    const oldBgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
-    if (oldBgm) {
-      oldBgm.stop();
-      oldBgm.destroy();
-      this.scene.sound.remove(oldBgm);
-      delete (this.scene as any).bgm;
-    }
+    let bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
 
-    // 🔊 Create fresh background music
-    const bgm = this.scene.sound.add("BeachTheme", { loop: true, volume: 0.5 });
-    if (!this.model.soundMuted) {
-      bgm.play();
+    if (!bgm) {
+      // Create and store new background music
+      bgm = this.scene.sound.add("BeachTheme", { loop: true, volume: 0.5 });
+      if (!this.model.soundMuted) {
+        bgm.play();
+      }
+      (this.scene as any).bgm = bgm;
     }
-    (this.scene as any).bgm = bgm;
 
     const handlers: UIHandlers = {
       refresh: () => this.onRefresh(),
@@ -46,7 +41,7 @@ export default class DiggingGameController {
   private onRefresh(): void {
     console.log("[Controller] Refreshing game...");
 
-    // 🟦 Add fade-out transition
+    // Add fade-out transition
     const fade = this.scene.add
       .rectangle(0, 0, 720, 1280, 0x000000)
       .setOrigin(0)
@@ -59,18 +54,9 @@ export default class DiggingGameController {
       duration: 600,
       ease: "Power2",
       onComplete: () => {
-        const bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
-        if (bgm) {
-          bgm.stop();
-          bgm.destroy();
-          this.scene.sound.remove(bgm);
-          delete (this.scene as any).bgm;
-        }
+        this.scene.sound.stopByKey("SomeSoundEffect");
 
-        this.scene.sound.stopAll();
-        this.scene.sound.removeAll();
-
-        this.scene.scene.restart();
+        this.scene.scene.restart(); 
       },
     });
   }

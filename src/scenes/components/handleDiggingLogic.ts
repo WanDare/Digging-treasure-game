@@ -71,7 +71,7 @@ export async function handleDiggingLogic(
 
             const prizeImg = scene.add
               .image(360, 620, textureKey)
-              .setDisplaySize(120, 120)
+              .setDisplaySize(64, 64)
               .setAlpha(0)
               .setDepth(9);
 
@@ -83,7 +83,7 @@ export async function handleDiggingLogic(
                 .setDepth(9);
 
               const popup = scene.add
-                .image(360, 640, "PopupWinner")
+                .image(367, 640, "PopupWinner")
                 .setDisplaySize(720, 1280)
                 .setAlpha(0)
                 .setDepth(10);
