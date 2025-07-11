@@ -83,14 +83,14 @@ export async function handleDiggingLogic(
                 .setDepth(9);
 
               const popup = scene.add
-                .image(367, 640, "PopupWinner")
+                .image(360, 640, "PopupWinner")
                 .setDisplaySize(720, 1280)
                 .setAlpha(0)
                 .setDepth(10);
               scene.tweens.add({ targets: popup, alpha: 1, duration: 300 });
 
               const popupPrize = scene.add
-                .image(360, 760, textureKey)
+                .image(355, 760, textureKey)
                 .setDisplaySize(150, 150)
                 .setAlpha(0)
                 .setDepth(11);
