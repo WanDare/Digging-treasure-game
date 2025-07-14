@@ -14,6 +14,9 @@ export async function handleDiggingLogic(
     .sprite(digImg.x + 30, digImg.y - 60, "Shovel1")
     .setScale(1)
     .play("shovel_dig");
+  scene.sound.play("DiggingSound", {
+    volume: 1,
+  });
 
   scene.time.delayedCall(800, async () => {
     shovel.destroy();
@@ -68,6 +71,7 @@ export async function handleDiggingLogic(
             });
 
             chest.setTexture("TreasureChestOpen").setDepth(9);
+            scene.sound.play("Achievement", { volume: 1 });
 
             const prizeImg = scene.add
               .image(360, 620, textureKey)
@@ -133,7 +137,7 @@ export async function handleDiggingLogic(
                 ease: "Power2",
               });
 
-              scene.time.delayedCall(5000, () => {
+              scene.time.delayedCall(2500, () => {
                 shine.destroy();
                 restart();
               });

@@ -25,15 +25,14 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
       errorMsg.style.display = "none";
       errorMsg.style.marginTop = "-20px";
       errorMsg.style.marginBottom = "20px";
-      errorMsg.style.alignItems = "center";
+      errorMsg.style.alignItems = "start";
       errorMsg.style.color = "#FFC107";
       errorMsg.style.fontSize = "14px";
       errorMsg.style.fontWeight = "500";
       errorMsg.style.textAlign = "left";
       errorMsg.style.width = "63%";
       errorMsg.innerHTML = `
-        <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
-        Phone number not registered. Please try again.
+        <span style="font-size: 12px; margin-right: 8px;">⚠️ Phone number not registered. Please try again.</span>
       `;
 
       phoneInput.parentElement?.insertBefore(errorMsg, loginBtn);
@@ -65,7 +64,7 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
           const data = await res.json();
 
           if (res.ok && data.success && data.data) {
-            console.log("✅ Valid phone:", data);
+            console.log("Valid phone:", data);
 
             localStorage.setItem("user", JSON.stringify(data.data));
 
