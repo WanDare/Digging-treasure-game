@@ -19,8 +19,10 @@ export type UIHandlers = {
 export default class DiggingGameView {
   private scene: Phaser.Scene;
   private diggingSpots: Phaser.GameObjects.Image[] = [];
-  private digUsed = false;
   private startButton?: Phaser.GameObjects.Image;
+
+  public energyUsed = false;
+  public digUsed = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -62,19 +64,17 @@ export default class DiggingGameView {
           { key: "Shovel3" },
           { key: "Shovel4" },
         ],
-        frameRate: 8,
+        frameRate: 6,
         repeat: 0,
       });
     }
   }
 
-  private async handleStartButtonClick() {
+  private handleStartButtonClick() {
     const userRaw = localStorage.getItem("user");
     if (!userRaw) return;
 
     const user = JSON.parse(userRaw);
-    const centerX = 720 / 2;
-    const height = 1280;
 
     if ((user.energy ?? 0) < 1) {
       this.showToast("⚡ Not enough energy to start");
@@ -83,23 +83,12 @@ export default class DiggingGameView {
 
     this.startButton?.destroy();
 
-    const reward = await this.deductEnergy(user);
+    user.energy = Math.max((user.energy ?? 0) - 1, 0);
+    localStorage.setItem("user", JSON.stringify(user));
+    updateEnergyDisplay(user.energy);
 
-    if (reward) {
-      user.energy = Math.max((user.energy ?? 0) - 1, 0);
-      localStorage.setItem("user", JSON.stringify(user));
-      updateEnergyDisplay(user.energy);
-
-      this.transitionToCrossMarks(reward);
-    } else {
-      this.showToast("❌ Failed to start. Please try again.");
-      this.startButton = createStartButton(
-        this.scene,
-        centerX,
-        height - 80,
-        this.handleStartButtonClick.bind(this)
-      );
-    }
+    this.energyUsed = true;
+    this.transitionToCrossMarks();
   }
 
   private async deductEnergy(user: any): Promise<any | null> {
@@ -153,10 +142,7 @@ export default class DiggingGameView {
     });
   }
 
-  private transitionToCrossMarks(reward: {
-    rewardName: string;
-    photo: string;
-  }) {
+  private transitionToCrossMarks() {
     this.diggingSpots.forEach((spot) => {
       this.scene.tweens.add({
         targets: spot,
@@ -166,18 +152,29 @@ export default class DiggingGameView {
           spot.setTexture("CrossMark").setInteractive();
           this.scene.tweens.add({ targets: spot, alpha: 1, duration: 300 });
 
-          spot.once("pointerdown", () => {
+          spot.once("pointerdown", async () => {
             if (!this.digUsed) {
               this.digUsed = true;
               this.disableOtherCrossMarks(spot);
 
-              handleDiggingLogic(
-                this.scene,
-                spot,
-                reward,
-                () => this.disableOtherCrossMarks(spot),
-                () => this.scene.scene.restart()
-              );
+              const userRaw = localStorage.getItem("user");
+              if (!userRaw) return;
+              const user = JSON.parse(userRaw);
+
+              const reward = await this.deductEnergy(user);
+
+              if (reward) {
+                handleDiggingLogic(
+                  this.scene,
+                  spot,
+                  reward,
+                  () => this.disableOtherCrossMarks(spot),
+                  () => this.scene.scene.restart()
+                );
+              } else {
+                this.showToast("❌ Failed to get reward.");
+                this.scene.scene.restart();
+              }
             }
           });
         },
@@ -189,5 +186,13 @@ export default class DiggingGameView {
     this.diggingSpots.forEach((spot) => {
       if (spot !== selected) spot.disableInteractive();
     });
+  }
+
+  hasTappedDiggingSpot(): boolean {
+    return this.digUsed;
+  }
+
+  hasUsedEnergy(): boolean {
+    return this.energyUsed;
   }
 }

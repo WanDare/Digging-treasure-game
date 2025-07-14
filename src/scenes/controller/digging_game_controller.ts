@@ -6,6 +6,7 @@ import { loadLoginScreen } from "../login-screen/login";
 export default class DiggingGameController {
   private model: DiggingGameModel;
   private view: DiggingGameView;
+  private energyRefunded = false;
 
   constructor(private scene: Phaser.Scene) {
     this.model = new DiggingGameModel();
@@ -20,7 +21,6 @@ export default class DiggingGameController {
     let bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
 
     if (!bgm) {
-      // Create and store new background music
       bgm = this.scene.sound.add("BeachTheme", { loop: true, volume: 0.5 });
       if (!this.model.soundMuted) {
         bgm.play();
@@ -39,9 +39,21 @@ export default class DiggingGameController {
   }
 
   private onRefresh(): void {
-    console.log("[Controller] Refreshing game...");
+    if (
+      this.view.hasUsedEnergy() &&
+      !this.view.hasTappedDiggingSpot() &&
+      !this.energyRefunded
+    ) {
+      const userRaw = localStorage.getItem("user");
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        user.energy = (user.energy ?? 0) + 1;
+        localStorage.setItem("user", JSON.stringify(user));
+        this.energyRefunded = true;
+        console.log("✅ Energy refunded locally");
+      }
+    }
 
-    // Add fade-out transition
     const fade = this.scene.add
       .rectangle(0, 0, 720, 1280, 0x000000)
       .setOrigin(0)
@@ -54,9 +66,7 @@ export default class DiggingGameController {
       duration: 600,
       ease: "Power2",
       onComplete: () => {
-        this.scene.sound.stopByKey("SomeSoundEffect");
-
-        this.scene.scene.restart(); 
+        this.scene.scene.restart();
       },
     });
   }
@@ -67,8 +77,7 @@ export default class DiggingGameController {
 
     const bgm = (this.scene as any).bgm as Phaser.Sound.BaseSound;
     if (bgm) {
-      if (muted) bgm.pause();
-      else bgm.resume();
+      muted ? bgm.pause() : bgm.resume();
     }
 
     if (btn) {
@@ -97,8 +106,18 @@ export default class DiggingGameController {
     this.scene.sound.removeAll();
     this.scene.scene.stop();
 
-    loadLoginScreen(() => {
-      window.location.reload();
-    });
+    if (this.scene.scale.isFullscreen) {
+      this.scene.scale.stopFullscreen();
+
+      setTimeout(() => {
+        loadLoginScreen(() => {
+          window.location.reload();
+        });
+      }, 200);
+    } else {
+      loadLoginScreen(() => {
+        window.location.reload();
+      });
+    }
   }
 }

@@ -40,8 +40,5 @@ export function preloadAssets(scene: Phaser.Scene) {
 
   scene.load.audio("Achievement", "assets/audios/achievement.mp3");
 
-  scene.load.spritesheet("shovelSheet", "assets/motions/shovel_frame1.png", {
-    frameWidth: 100,
-    frameHeight: 100,
-  });
+  scene.load.audio("DiggingSound", "assets/audios/digging_sound_effect.mp3");
 }
