@@ -33,61 +33,32 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
     }
   });
 
+  // Ensure energy starts at 0 if undefined
   const userRaw = localStorage.getItem("user");
   let user: any = null;
   try {
-    user = userRaw ? JSON.parse(userRaw) : null;
+    user = userRaw ? JSON.parse(userRaw) : {};
   } catch (err) {
     console.warn("⚠️ Failed to parse user:", err);
+    user = {};
   }
 
   const fullName = user?.name || "Guest";
-  const energy = user?.energy ?? 0;
-  // const photoUrl = user?.photo || "";
+  if (typeof user.energy !== "number") {
+    user.energy = 0;
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
+  let currentEnergy = user.energy;
 
   const container = scene.add.container(500, 58);
 
-  // Always show static profile image
   const profile = scene.add
     .image(-170, 0, "Profile")
     .setDisplaySize(42, 42)
     .setOrigin(0.5);
   container.add(profile);
 
-  // if (photoUrl) {
-  //   if (scene.textures.exists("UserPhoto")) {
-  //     scene.textures.remove("UserPhoto");
-  //   }
-
-  //   scene.load.image("UserPhoto", photoUrl);
-
-  //   // 🔁 Load error fallback to default profile
-  //   scene.load.once("loaderror", () => {
-  //     console.warn("⚠️ Failed to load UserPhoto, using default.");
-  //     const fallback = scene.add
-  //       .image(-170, 0, "Profile")
-  //       .setDisplaySize(42, 42);
-  //     container.add(fallback);
-  //   });
-
-  //   scene.load.once("complete", () => {
-  //     if (scene.textures.exists("UserPhoto")) {
-  //       const profileImg = scene.add
-  //         .image(-170, 0, "UserPhoto")
-  //         .setDisplaySize(42, 42)
-  //         .setOrigin(0.5)
-  //         .setDepth(1)
-  //         .setCrop(0, 0, 42, 42);
-  //       container.add(profileImg);
-  //     }
-  //   });
-
-  //   scene.load.start();
-  // } else {
-  //   container.add(scene.add.image(-170, 0, "Profile").setScale(1));
-  // }
-
-  // 👤 Username with ellipsis
   const maxWidth = 130;
   let displayName = fullName;
   const nameText = scene.add
@@ -111,9 +82,9 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
   container.add(scene.add.image(15, 0, "LineSplit").setScale(1));
   container.add(scene.add.image(110, 0, "EnergyCard").setScale(1));
 
-  // ⚡ Energy Text (reference stored)
+  // ⚡ Energy Text
   energyTextRef = scene.add
-    .text(120, 2, `${energy} Energy`, {
+    .text(120, 2, `${currentEnergy}`, {
       fontSize: "20px",
       fontFamily: "GROBOLD",
       color: "#fff",
@@ -121,12 +92,50 @@ export function createTopUI(scene: Phaser.Scene, handlers: UIHandlers) {
     })
     .setStroke("#1A5389", 2)
     .setOrigin(0.5);
-
   container.add(energyTextRef);
+
+  // ➕ Increase Button
+  const increaseBtn = scene.add
+    .image(160, 0, "increase")
+    .setInteractive({ useHandCursor: true })
+    .setDisplaySize(24, 24)
+    .on("pointerdown", () => {
+      currentEnergy++;
+      updateEnergyDisplay(currentEnergy);
+      saveEnergyToStorage(currentEnergy);
+    });
+  container.add(increaseBtn);
+
+  // ➖ Decrease Button
+  const decreaseBtn = scene.add
+    .image(80, 0, "decrease")
+    .setInteractive({ useHandCursor: true })
+    .setDisplaySize(24, 24)
+    .on("pointerdown", () => {
+      if (currentEnergy > 0) {
+        currentEnergy--;
+        updateEnergyDisplay(currentEnergy);
+        saveEnergyToStorage(currentEnergy);
+      }
+    });
+  container.add(decreaseBtn);
 }
 
 export function updateEnergyDisplay(newEnergy: number) {
   if (energyTextRef) {
-    energyTextRef.setText(`${newEnergy} Energy`);
+    energyTextRef.setText(`${newEnergy}`);
+  }
+}
+
+function saveEnergyToStorage(energy: number) {
+  const userRaw = localStorage.getItem("user");
+  let user: any = {};
+
+  try {
+    user = userRaw ? JSON.parse(userRaw) : {};
+    user.energy = energy;
+    localStorage.setItem("user", JSON.stringify(user));
+  } catch (err) {
+    console.warn("⚠️ Failed to save energy to user data:", err);
   }
 }

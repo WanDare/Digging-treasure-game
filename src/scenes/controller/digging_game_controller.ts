@@ -1,7 +1,6 @@
 import DiggingGameModel from "../model/digging_game_model";
 import DiggingGameView from "../view/digging_game_view";
 import type { UIHandlers } from "../components/createTopUI";
-import { loadLoginScreen } from "../login-screen/login";
 
 export default class DiggingGameController {
   private model: DiggingGameModel;
@@ -50,7 +49,7 @@ export default class DiggingGameController {
         user.energy = (user.energy ?? 0) + 1;
         localStorage.setItem("user", JSON.stringify(user));
         this.energyRefunded = true;
-        console.log("✅ Energy refunded locally");
+        console.log("Energy refunded locally");
       }
     }
 
@@ -94,6 +93,8 @@ export default class DiggingGameController {
   }
 
   private onExit(): void {
+
+
     const bgm = (this.scene as any).bgm;
     if (bgm) {
       bgm.stop();
@@ -106,18 +107,6 @@ export default class DiggingGameController {
     this.scene.sound.removeAll();
     this.scene.scene.stop();
 
-    if (this.scene.scale.isFullscreen) {
-      this.scene.scale.stopFullscreen();
-
-      setTimeout(() => {
-        loadLoginScreen(() => {
-          window.location.reload();
-        });
-      }, 200);
-    } else {
-      loadLoginScreen(() => {
-        window.location.reload();
-      });
-    }
+    window.location.reload();
   }
 }

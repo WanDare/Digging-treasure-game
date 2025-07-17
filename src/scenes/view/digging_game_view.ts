@@ -83,6 +83,7 @@ export default class DiggingGameView {
 
     this.startButton?.destroy();
 
+    // Deduct energy locally
     user.energy = Math.max((user.energy ?? 0) - 1, 0);
     localStorage.setItem("user", JSON.stringify(user));
     updateEnergyDisplay(user.energy);
@@ -91,18 +92,16 @@ export default class DiggingGameView {
     this.transitionToCrossMarks();
   }
 
-  private async deductEnergy(user: any): Promise<any | null> {
+  private async fetchReward(user: any): Promise<any | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/reward/game-play`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: user.phone,
           deviceName: navigator.userAgent,
           gameName: "Digging Treasure",
-          energy: 1,
+          energy: 1, // this doesn't affect frontend energy anymore
         }),
       });
 
@@ -114,9 +113,49 @@ export default class DiggingGameView {
         return null;
       }
     } catch (error) {
-      console.error("❌ Network or parsing error:", error);
+      console.error("❌ Network error:", error);
       return null;
     }
+  }
+
+  private transitionToCrossMarks() {
+    this.diggingSpots.forEach((spot) => {
+      this.scene.tweens.add({
+        targets: spot,
+        alpha: 0,
+        duration: 300,
+        onComplete: () => {
+          spot.setTexture("CrossMark").setInteractive();
+          this.scene.tweens.add({ targets: spot, alpha: 1, duration: 300 });
+
+          spot.once("pointerdown", async () => {
+            if (!this.digUsed) {
+              this.digUsed = true;
+              this.disableOtherCrossMarks(spot);
+
+              const userRaw = localStorage.getItem("user");
+              if (!userRaw) return;
+              const user = JSON.parse(userRaw);
+
+              const reward = await this.fetchReward(user);
+
+              if (reward) {
+                handleDiggingLogic(
+                  this.scene,
+                  spot,
+                  reward,
+                  () => this.disableOtherCrossMarks(spot),
+                  () => this.scene.scene.restart()
+                );
+              } else {
+                this.showToast("❌ Failed to get reward.");
+                this.scene.scene.restart();
+              }
+            }
+          });
+        },
+      });
+    });
   }
 
   private showToast(message: string) {
@@ -139,46 +178,6 @@ export default class DiggingGameView {
       yoyo: true,
       hold: 1500,
       onComplete: () => toast.destroy(),
-    });
-  }
-
-  private transitionToCrossMarks() {
-    this.diggingSpots.forEach((spot) => {
-      this.scene.tweens.add({
-        targets: spot,
-        alpha: 0,
-        duration: 300,
-        onComplete: () => {
-          spot.setTexture("CrossMark").setInteractive();
-          this.scene.tweens.add({ targets: spot, alpha: 1, duration: 300 });
-
-          spot.once("pointerdown", async () => {
-            if (!this.digUsed) {
-              this.digUsed = true;
-              this.disableOtherCrossMarks(spot);
-
-              const userRaw = localStorage.getItem("user");
-              if (!userRaw) return;
-              const user = JSON.parse(userRaw);
-
-              const reward = await this.deductEnergy(user);
-
-              if (reward) {
-                handleDiggingLogic(
-                  this.scene,
-                  spot,
-                  reward,
-                  () => this.disableOtherCrossMarks(spot),
-                  () => this.scene.scene.restart()
-                );
-              } else {
-                this.showToast("❌ Failed to get reward.");
-                this.scene.scene.restart();
-              }
-            }
-          });
-        },
-      });
     });
   }
 

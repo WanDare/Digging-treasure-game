@@ -17,6 +17,8 @@ export function preloadAssets(scene: Phaser.Scene) {
     ["SoundOff", "assets/images/soundoff_button.png"],
     ["SoundOn", "assets/images/soundon_button.png"],
     ["Refresh", "assets/images/refresh_button.png"],
+    ["increase", "assets/images/increase.png"],
+    ["decrease", "assets/images/decrease.png"],
     // Motions
     ["ShineEffect", "assets/images/shine_effect.png"],
     ["SandSplash", "assets/images/sand_splash.png"],
