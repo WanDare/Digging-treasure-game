@@ -39,6 +39,7 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
 
       phoneInput?.focus();
 
+      // Don't request fullscreen on input — let it behave naturally
       phoneInput?.addEventListener("input", () => {
         const hasValue = phoneInput.value.trim().length > 0;
         loginBtn.disabled = !hasValue;
@@ -50,6 +51,16 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
 
       loginBtn?.addEventListener("click", async () => {
         if (loginBtn.disabled || !phoneInput.value) return;
+
+        // Only request fullscreen here
+        if (!document.fullscreenElement) {
+          try {
+            await document.documentElement.requestFullscreen();
+            console.log("Entered fullscreen from login click");
+          } catch (err) {
+            console.warn("Fullscreen denied:", err);
+          }
+        }
 
         const rawPhone = phoneInput.value.trim();
         const phone = rawPhone.startsWith("0")
@@ -76,9 +87,9 @@ export function loadLoginScreen(onLoginSuccess: () => void) {
         } catch (err) {
           console.error("Network error:", err);
           errorMsg.innerHTML = `
-            <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
-            Network error. Please try again.
-          `;
+      <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
+      Network error. Please try again.
+    `;
           errorMsg.style.display = "flex";
         } finally {
           loginBtn.textContent = "Login";
