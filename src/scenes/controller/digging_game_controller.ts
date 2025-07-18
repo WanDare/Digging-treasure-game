@@ -1,6 +1,7 @@
 import DiggingGameModel from "../model/digging_game_model";
 import DiggingGameView from "../view/digging_game_view";
 import type { UIHandlers } from "../components/createTopUI";
+import { config } from "../../game/phaserConfig";
 
 export default class DiggingGameController {
   private model: DiggingGameModel;
@@ -84,17 +85,37 @@ export default class DiggingGameController {
     }
   }
 
-  private onToggleFullScreen(): void {
-    if (!this.scene.scale.isFullscreen) {
-      this.scene.scale.startFullscreen();
+  private async onToggleFullScreen(): Promise<void> {
+    const canvas = this.scene.game.canvas;
+
+    if (!document.fullscreenElement) {
+      try {
+        await canvas.requestFullscreen();
+
+        // Force Phaser to resize after entering fullscreen
+        this.scene.scale.resize(window.innerWidth, window.innerHeight);
+        this.scene.scale.refresh();
+
+        console.log("Entered fullscreen mode");
+      } catch (err) {
+        console.warn("Fullscreen request failed:", err);
+      }
     } else {
-      this.scene.scale.stopFullscreen();
+      try {
+        await document.exitFullscreen();
+
+        // Revert to original game size
+        this.scene.scale.resize(720, 1280);
+        this.scene.scale.refresh();
+
+        console.log("Exited fullscreen mode");
+      } catch (err) {
+        console.warn("Exit fullscreen failed:", err);
+      }
     }
   }
 
   private onExit(): void {
-
-
     const bgm = (this.scene as any).bgm;
     if (bgm) {
       bgm.stop();
@@ -107,6 +128,21 @@ export default class DiggingGameController {
     this.scene.sound.removeAll();
     this.scene.scene.stop();
 
-    window.location.reload();
+    // Save fullscreen state
+    const wasFullscreen = this.scene.scale.isFullscreen;
+    localStorage.setItem("fullscreen", wasFullscreen ? "1" : "0");
+
+    // Remove canvas
+    const canvas = document.querySelector("canvas");
+    if (canvas) {
+      canvas.remove();
+    }
+
+    // Load login screen again
+    import("../login-screen/login").then(({ loadLoginScreen }) => {
+      loadLoginScreen(() => {
+        new Phaser.Game(config);
+      });
+    });
   }
 }
